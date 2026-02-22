@@ -457,66 +457,135 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           if (settings.monthlyGoal > 0) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             // 애니메이션 진행률
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: progress),
-              duration: const Duration(milliseconds: 1000),
-              curve: Curves.easeOutCubic,
-              builder: (context, animatedProgress, child) {
-                return Stack(
-                  children: [
-                    // 배경 바
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 24,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                    // 진행 바
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        height: 24,
-                        width: MediaQuery.of(context).size.width * 0.85 * animatedProgress,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: isGoalMet
-                                ? [const Color(0xFF00D4AA), const Color(0xFF00B4D8)]
-                                : [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: progress),
+                  duration: const Duration(milliseconds: 2000),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, animatedProgress, child) {
+                    final displayProgress = progress >= 1.0 ? 1.0 : animatedProgress;
+                    
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        // 배경 바
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            height: 32,
+                            color: Colors.grey.shade800,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isGoalMet
-                                      ? const Color(0xFF00D4AA)
-                                      : const Color(0xFFFF6B6B))
-                                  .withOpacity(0.5),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
+                        ),
+                        // 진행 바
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            height: 32,
+                            width: constraints.maxWidth * displayProgress,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: isGoalMet
+                                    ? [const Color(0xFF00D4AA), const Color(0xFF00B4D8)]
+                                    : [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (isGoalMet
+                                          ? const Color(0xFF00D4AA)
+                                          : const Color(0xFFFF6B6B))
+                                      .withOpacity(0.5),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // 퍼센트 텍스트 (중앙)
-                    Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          '${(animatedProgress * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                        // 달려가는 캐릭터 (100% 미만일 때만)
+                        if (progress < 1.0)
+                          Positioned(
+                            left: (constraints.maxWidth * displayProgress) - 28,
+                            top: -4,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.white,
+                                    Colors.grey.shade200,
+                                  ],
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (isGoalMet
+                                            ? const Color(0xFF00D4AA)
+                                            : const Color(0xFFFF6B6B))
+                                        .withOpacity(0.6),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '🏃',
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          ),
+                        // 100% 달성 표시
+                        if (progress >= 1.0)
+                          Positioned(
+                            right: 8,
+                            top: 4,
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xFF00D4AA),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  '🎉',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                            ),
+                          ),
+                        // 퍼센트 텍스트 (중앙)
+                        Positioned.fill(
+                          child: Center(
+                            child: Text(
+                              '${(displayProgress * 100).toStringAsFixed(0)}%',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -527,13 +596,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.grey.shade500,
                   ),
                 ),
-                Text(
-                  '${(progress * 100).toStringAsFixed(0)}% 달성',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
-                  ),
+                Row(
+                  children: [
+                    if (progress >= 1.0) ...[
+                      const Text(
+                        '🎉 목표 달성!',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00D4AA),
+                        ),
+                      ),
+                    ] else ...[
+                      const Text(
+                        '🏃 열심히 달리는 중... ',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      Text(
+                        '${(progress * 100).toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFF6B6B),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
