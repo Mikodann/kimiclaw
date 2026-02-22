@@ -330,8 +330,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _formatDate(DateTime date) {
     final now = DateTime.now();
-    if (date.year == now.year &amp;&amp;
-        date.month == now.month &amp;&amp;
+    if (date.year == now.year &&
+        date.month == now.month &&
         date.day == now.day) {
       return '오늘';
     }
