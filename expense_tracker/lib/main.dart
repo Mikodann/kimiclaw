@@ -15,63 +15,58 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '가계부',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1A5F7A),
-          brightness: Brightness.light,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0A0A0F),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF00D4AA),
+          secondary: Color(0xFF7B61FF),
+          surface: Color(0xFF1A1A2E),
+          background: Color(0xFF0A0A0F),
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-        cardTheme: const CardThemeData(
+        cardTheme: CardThemeData(
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
+            borderRadius: BorderRadius.circular(20),
           ),
-          color: Colors.white,
+          color: const Color(0xFF1A1A2E).withOpacity(0.8),
         ),
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
           backgroundColor: Colors.transparent,
-          foregroundColor: Color(0xFF1A5F7A),
+          foregroundColor: Colors.white,
           titleTextStyle: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1A5F7A),
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Colors.white,
-          selectedItemColor: Color(0xFF1A5F7A),
-          unselectedItemColor: Colors.grey,
+          backgroundColor: Color(0xFF0A0A0F),
+          selectedItemColor: Color(0xFF00D4AA),
+          unselectedItemColor: Color(0xFF6B7280),
           type: BottomNavigationBarType.fixed,
-          elevation: 8,
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          elevation: 0,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF5F5F5),
+          fillColor: const Color(0xFF2A2A3E),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(
-              color: Color(0xFF1A5F7A),
+              color: Color(0xFF00D4AA),
               width: 2,
             ),
           ),
+          labelStyle: const TextStyle(color: Color(0xFF9CA3AF)),
         ),
       ),
       home: const MainScreen(),
@@ -98,21 +93,33 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF0A0A0F),
+              Color(0xFF1A1A2E),
+              Color(0xFF0A0A0F),
+            ],
+          ),
+        ),
+        child: _screens[_selectedIndex],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+          color: const Color(0xFF0A0A0F).withOpacity(0.9),
+          border: Border(
+            top: BorderSide(
+              color: Colors.white.withOpacity(0.1),
+              width: 1,
             ),
-          ],
+          ),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -136,33 +143,41 @@ class _MainScreenState extends State<MainScreen> {
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF1A5F7A).withOpacity(0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFF00D4AA), Color(0xFF00B4D8)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF00D4AA).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected
-                  ? const Color(0xFF1A5F7A)
-                  : Colors.grey.shade400,
+              color: isSelected ? Colors.white : const Color(0xFF6B7280),
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? const Color(0xFF1A5F7A)
-                    : Colors.grey.shade400,
+                color: isSelected ? Colors.white : const Color(0xFF6B7280),
                 fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ],

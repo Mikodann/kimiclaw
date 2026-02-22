@@ -18,183 +18,240 @@ class _QuickAddState extends State<QuickAdd> {
 
   @override
   Widget build(BuildContext context) {
-    // 카테고리가 현재 선택한 타입에 없으면 첫 번째로 변경
     if (!_categories.contains(_selectedCategory)) {
       _selectedCategory = _categories.first;
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF1A1A2E).withOpacity(0.9),
+            const Color(0xFF2A2A3E).withOpacity(0.7),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (_isExpense ? const Color(0xFFFF6B6B) : const Color(0xFF00D4AA))
+                .withOpacity(0.15),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 헤더 + 타입 선택
-            Row(
-              children: [
-                const Text(
-                  '빠른 입력',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더 + 타입 선택
+          Row(
+            children: [
+              const Text(
+                '빠른 입력',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
-                const Spacer(),
-                // 커스텀 토글 버튼 (세로 방지)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildTypeButton('지출', true, Colors.red),
-                      _buildTypeButton('수입', false, Colors.green),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              ),
+              const Spacer(),
+              _buildTypeToggle(),
+            ],
+          ),
+          const SizedBox(height: 24),
 
-            // 금액 + 카테고리
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
+          // 금액 + 카테고리
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A3E),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   child: TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                     decoration: InputDecoration(
                       labelText: '금액',
+                      labelStyle: TextStyle(
+                        color: Colors.grey.shade500,
+                      ),
                       prefixText: '₩ ',
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
+                      prefixStyle: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.teal,
-                          width: 2,
-                        ),
-                      ),
+                      contentPadding: const EdgeInsets.all(20),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      decoration: InputDecoration(
-                        labelText: '카테고리',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Colors.teal,
-                            width: 2,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
-                      icon: const Icon(Icons.arrow_drop_down),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Row(
-                            children: [
-                              Icon(
-                                getCategoryIcon(category),
-                                size: 18,
-                                color: getCategoryColor(category),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(category),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
-                      },
-                    ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A3E),
+                    borderRadius: BorderRadius.circular(16),
                   ),
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: '카테고리',
+                      labelStyle: TextStyle(
+                        color: Colors.grey.shade500,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    dropdownColor: const Color(0xFF2A2A3E),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.grey.shade500,
+                    ),
+                    items: _categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Row(
+                          children: [
+                            Icon(
+                              getCategoryIcon(category),
+                              size: 18,
+                              color: getCategoryColor(category),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(category),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategory = value!;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // 추가 버튼
+          Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _isExpense
+                    ? [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)]
+                    : [const Color(0xFF00D4AA), const Color(0xFF00B4D8)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: (_isExpense
+                          ? const Color(0xFFFF6B6B)
+                          : const Color(0xFF00D4AA))
+                      .withOpacity(0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // 추가 버튼
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: FilledButton.icon(
-                onPressed: _amountController.text.isEmpty
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _amountController.text.isEmpty
                     ? null
                     : () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
                               '${_isExpense ? '지출' : '수입'} ₩${_amountController.text} 저장됨',
+                              style: const TextStyle(color: Colors.white),
                             ),
+                            backgroundColor: _isExpense
+                                ? const Color(0xFFFF6B6B)
+                                : const Color(0xFF00D4AA),
                             duration: const Duration(seconds: 1),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         );
                         _amountController.clear();
                       },
-                icon: const Icon(Icons.add),
-                label: const Text(
-                  '추가',
-                  style: TextStyle(fontSize: 16),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: _isExpense ? Colors.red : Colors.green,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '추가',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTypeToggle() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A3E),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTypeButton('지출', true, const Color(0xFFFF6B6B)),
+          _buildTypeButton('수입', false, const Color(0xFF00D4AA)),
+        ],
       ),
     );
   }
@@ -208,17 +265,31 @@ class _QuickAddState extends State<QuickAdd> {
           _selectedCategory = _categories.first;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [activeColor, activeColor.withOpacity(0.8)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: activeColor.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey.shade700,
-            fontWeight: FontWeight.bold,
+            color: isSelected ? Colors.white : Colors.grey.shade500,
+            fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),
