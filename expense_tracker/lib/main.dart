@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/add_screen.dart';
 import 'screens/stats_screen.dart';
+import 'screens/installment_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -88,6 +89,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const AddScreen(),
     const StatsScreen(),
+    const InstallmentScreen(),
   ];
 
   @override
@@ -126,6 +128,7 @@ class _MainScreenState extends State<MainScreen> {
                 _buildNavItem(Icons.home_rounded, '홈', 0),
                 _buildNavItem(Icons.add_circle_rounded, '입력', 1),
                 _buildNavItem(Icons.pie_chart_rounded, '통계', 2),
+                _buildNavItem(Icons.calendar_today_rounded, '할부', 3),
               ],
             ),
           ),
