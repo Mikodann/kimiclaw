@@ -390,8 +390,8 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -417,9 +417,9 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           SizedBox(
-            height: 200,
+            height: 220,
             child: PieChart(
               PieChartData(
                 sections: sections,
@@ -431,7 +431,7 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           // 범례
           Wrap(
             spacing: 12,
