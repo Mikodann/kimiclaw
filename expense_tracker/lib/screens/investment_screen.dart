@@ -330,13 +330,16 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
 
     // 상위 5개만 표시, 나머지는 "기타"로 묶기
     final List<PieChartSectionData> sections = [];
+    // 통계 화면과 유사한 다양한 색상
     final colors = [
-      const Color(0xFF22C55E), // 초록
-      const Color(0xFF00D4AA), // 민트
-      const Color(0xFF00B4D8), // 하늘
+      const Color(0xFFFF6B6B), // 코랄 (빨강)
       const Color(0xFF7B61FF), // 볼록
+      const Color(0xFF00D4AA), // 민트
       const Color(0xFFFFC93C), // 노랑
       const Color(0xFFFF8E53), // 주황
+      const Color(0xFF00B4D8), // 하늘
+      const Color(0xFFFF5E7D), // 핑크
+      const Color(0xFF22C55E), // 초록
     ];
 
     double othersValue = 0;
@@ -407,16 +410,16 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
       child: Column(
         children: [
           const Text(
-            '투자 비율',
+            '포트폴리오 분포',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           SizedBox(
-            height: 250,
+            height: 200,
             child: PieChart(
               PieChartData(
                 sections: sections,
