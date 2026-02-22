@@ -79,7 +79,7 @@ class _AddScreenState extends State<AddScreen> {
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: '내용',
-                hintText: _isExpense ? '예: 점심, 택시' : '예: 월급, 볼너스',
+                hintText: _isExpense ? '예: 점심, 택시' : '예: 월급, 상여금',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

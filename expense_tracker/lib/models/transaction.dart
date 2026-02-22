@@ -47,7 +47,7 @@ final List<String> expenseCategories = [
 
 // 수입 카테고리
 final List<String> incomeCategories = [
-  '월급', '투자수익', '용돈', '환급', '기타수입'
+  '월급', '상여금', '투자수익', '용돈', '환급', '기타수입'
 ];
 
 // 카테고리별 아이콘
@@ -64,6 +64,7 @@ IconData getCategoryIcon(String category) {
     '기타': Icons.category,
     // 수입
     '월급': Icons.work,
+    '상여금': Icons.card_giftcard,
     '투자수익': Icons.trending_up,
     '용돈': Icons.attach_money,
     '환급': Icons.reply,
@@ -86,6 +87,7 @@ Color getCategoryColor(String category) {
     '기타': Colors.grey,
     // 수입 - 초록 계열
     '월급': Colors.green.shade700,
+    '상여금': Colors.green.shade600,
     '투자수익': Colors.green.shade500,
     '용돈': Colors.green.shade400,
     '환급': Colors.green.shade800,
