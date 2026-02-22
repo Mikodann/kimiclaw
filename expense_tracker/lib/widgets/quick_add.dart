@@ -25,43 +25,45 @@ class _QuickAddState extends State<QuickAdd> {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 헤더 + 타입 선택
             Row(
               children: [
                 const Text(
                   '빠른 입력',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
-                SegmentedButton<bool>(
-                  segments: const [
-                    ButtonSegment(
-                      value: true,
-                      label: Text('지출'),
-                    ),
-                    ButtonSegment(
-                      value: false,
-                      label: Text('수입'),
-                    ),
-                  ],
-                  selected: {_isExpense},
-                  onSelectionChanged: (Set<bool> newSelection) {
-                    setState(() {
-                      _isExpense = newSelection.first;
-                      _selectedCategory = _categories.first;
-                    });
-                  },
+                // 커스텀 토글 버튼 (세로 방지)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTypeButton('지출', true, Colors.red),
+                      _buildTypeButton('수입', false, Colors.green),
+                    ],
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
+
+            // 금액 + 카테고리
             Row(
               children: [
                 Expanded(
@@ -69,49 +71,96 @@ class _QuickAddState extends State<QuickAdd> {
                   child: TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: InputDecoration(
                       labelText: '금액',
                       prefixText: '₩ ',
-                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.teal,
+                          width: 2,
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 1,
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      labelText: '카테고리',
-                      border: OutlineInputBorder(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    items: _categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Row(
-                          children: [
-                            Icon(
-                              getCategoryIcon(category),
-                              size: 18,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(category),
-                          ],
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: '카테고리',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value!;
-                      });
-                    },
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.teal,
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                      icon: const Icon(Icons.arrow_drop_down),
+                      items: _categories.map((category) {
+                        return DropdownMenuItem(
+                          value: category,
+                          child: Row(
+                            children: [
+                              Icon(
+                                getCategoryIcon(category),
+                                size: 18,
+                                color: getCategoryColor(category),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(category),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value!;
+                        });
+                      },
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
+
+            // 추가 버튼
             SizedBox(
               width: double.infinity,
+              height: 52,
               child: FilledButton.icon(
                 onPressed: _amountController.text.isEmpty
                     ? null
@@ -122,15 +171,56 @@ class _QuickAddState extends State<QuickAdd> {
                               '${_isExpense ? '지출' : '수입'} ₩${_amountController.text} 저장됨',
                             ),
                             duration: const Duration(seconds: 1),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         );
                         _amountController.clear();
                       },
                 icon: const Icon(Icons.add),
-                label: const Text('추가'),
+                label: const Text(
+                  '추가',
+                  style: TextStyle(fontSize: 16),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _isExpense ? Colors.red : Colors.green,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeButton(String label, bool isExpense, Color activeColor) {
+    final isSelected = _isExpense == isExpense;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isExpense = isExpense;
+          _selectedCategory = _categories.first;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey.shade700,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
       ),
     );
