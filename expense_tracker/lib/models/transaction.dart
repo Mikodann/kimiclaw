@@ -86,14 +86,14 @@ class SettingsStorage {
 
 // 할부 클래스
 class Installment {
-  final String id;
-  final String title;
-  final double totalAmount;
-  final double monthlyAmount;
-  final int totalMonths;
-  int currentMonth;
-  final String category;
-  final DateTime startDate;
+  late String id;
+  late String title;
+  late double totalAmount;
+  late double monthlyAmount;
+  late int totalMonths;
+  late int currentMonth;
+  late String category;
+  late DateTime startDate;
 
   Installment({
     required this.id,
