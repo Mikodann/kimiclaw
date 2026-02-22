@@ -155,18 +155,6 @@ class _AddScreenState extends State<AddScreen> {
                   ),
                 ],
               ),
-                  Expanded(
-                    child: TextField(
-                      controller: _currentMonthController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: '현재 회차',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 16),
             ],
 
