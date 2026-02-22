@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/transaction.dart';
 
 class QuickAdd extends StatefulWidget {
   const QuickAdd({super.key});
@@ -12,10 +13,16 @@ class _QuickAddState extends State<QuickAdd> {
   String _selectedCategory = '식비';
   bool _isExpense = true;
 
-  final List<String> _categories = ['식비', '교통', '쇼핑', '엔터', '주거', '기타'];
+  List<String> get _categories =>
+      _isExpense ? expenseCategories : incomeCategories;
 
   @override
   Widget build(BuildContext context) {
+    // 카테고리가 현재 선택한 타입에 없으면 첫 번째로 변경
+    if (!_categories.contains(_selectedCategory)) {
+      _selectedCategory = _categories.first;
+    }
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Padding(
@@ -48,6 +55,7 @@ class _QuickAddState extends State<QuickAdd> {
                   onSelectionChanged: (Set<bool> newSelection) {
                     setState(() {
                       _isExpense = newSelection.first;
+                      _selectedCategory = _categories.first;
                     });
                   },
                 ),
@@ -80,7 +88,16 @@ class _QuickAddState extends State<QuickAdd> {
                     items: _categories.map((category) {
                       return DropdownMenuItem(
                         value: category,
-                        child: Text(category),
+                        child: Row(
+                          children: [
+                            Icon(
+                              getCategoryIcon(category),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(category),
+                          ],
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -96,18 +113,19 @@ class _QuickAddState extends State<QuickAdd> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: _amountController.text.isEmpty ? null : () {
-                  // 저장 로직 (나중에 구현)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${_isExpense ? '지출' : '수입'} ₩${_amountController.text} 저장됨',
-                      ),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
-                  _amountController.clear();
-                },
+                onPressed: _amountController.text.isEmpty
+                    ? null
+                    : () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${_isExpense ? '지출' : '수입'} ₩${_amountController.text} 저장됨',
+                            ),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                        _amountController.clear();
+                      },
                 icon: const Icon(Icons.add),
                 label: const Text('추가'),
               ),

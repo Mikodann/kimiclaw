@@ -15,10 +15,16 @@ class _AddScreenState extends State<AddScreen> {
   bool _isExpense = true;
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _categories = ['식비', '교통', '쇼핑', '엔터', '주거', '기타'];
+  List<String> get _categories =>
+      _isExpense ? expenseCategories : incomeCategories;
 
   @override
   Widget build(BuildContext context) {
+    // 카테고리가 현재 선택한 타입에 없으면 첫 번째로 변경
+    if (!_categories.contains(_selectedCategory)) {
+      _selectedCategory = _categories.first;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('내역 추가'),
@@ -46,6 +52,7 @@ class _AddScreenState extends State<AddScreen> {
                 onSelectionChanged: (Set<bool> newSelection) {
                   setState(() {
                     _isExpense = newSelection.first;
+                    _selectedCategory = _categories.first;
                   });
                 },
               ),
@@ -72,7 +79,7 @@ class _AddScreenState extends State<AddScreen> {
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: '내용',
-                hintText: '예: 점심, 택시, 월급',
+                hintText: _isExpense ? '예: 점심, 택시' : '예: 월급, 볼너스',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -94,7 +101,10 @@ class _AddScreenState extends State<AddScreen> {
                   value: category,
                   child: Row(
                     children: [
-                      Icon(_getCategoryIcon(category)),
+                      Icon(
+                        getCategoryIcon(category),
+                        color: getCategoryColor(category),
+                      ),
                       const SizedBox(width: 8),
                       Text(category),
                     ],
@@ -165,14 +175,15 @@ class _AddScreenState extends State<AddScreen> {
 
     final transaction = Transaction(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text.isEmpty ? _selectedCategory : _titleController.text,
+      title: _titleController.text.isEmpty
+          ? _selectedCategory
+          : _titleController.text,
       amount: double.parse(_amountController.text),
       category: _selectedCategory,
       date: _selectedDate,
       isExpense: _isExpense,
     );
 
-    // TODO: 저장 로직 구현
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -181,29 +192,11 @@ class _AddScreenState extends State<AddScreen> {
       ),
     );
 
-    // 초기화
     _titleController.clear();
     _amountController.clear();
     setState(() {
       _selectedDate = DateTime.now();
     });
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case '식비':
-        return Icons.restaurant;
-      case '교통':
-        return Icons.directions_bus;
-      case '쇼핑':
-        return Icons.shopping_bag;
-      case '엔터':
-        return Icons.movie;
-      case '주거':
-        return Icons.home;
-      default:
-        return Icons.category;
-    }
   }
 
   @override

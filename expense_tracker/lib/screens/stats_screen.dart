@@ -11,6 +11,7 @@ class StatsScreen extends StatefulWidget {
 
 class _StatsScreenState extends State<StatsScreen> {
   List<Transaction> transactions = [];
+  bool _showExpense = true; // true: 지출, false: 수입
 
   @override
   void initState() {
@@ -25,20 +26,21 @@ class _StatsScreenState extends State<StatsScreen> {
       Transaction(id: '3', title: '지하철', amount: 1400, category: '교통', date: DateTime.now(), isExpense: true),
       Transaction(id: '4', title: '택시', amount: 8500, category: '교통', date: DateTime.now(), isExpense: true),
       Transaction(id: '5', title: '옷', amount: 45000, category: '쇼핑', date: DateTime.now(), isExpense: true),
-      Transaction(id: '6', title: '월급', amount: 3000000, category: '수입', date: DateTime.now(), isExpense: false),
+      Transaction(id: '6', title: '월급', amount: 3000000, category: '월급', date: DateTime.now(), isExpense: false),
+      Transaction(id: '7', title: '볼너스', amount: 500000, category: '볼너스', date: DateTime.now(), isExpense: false),
     ];
   }
 
   Map<String, double> get _categoryTotals {
     final Map<String, double> totals = {};
-    for (final t in transactions.where((t) => t.isExpense)) {
+    for (final t in transactions.where((t) => t.isExpense == _showExpense)) {
       totals[t.category] = (totals[t.category] ?? 0) + t.amount;
     }
     return totals;
   }
 
-  double get _totalExpense => transactions
-      .where((t) => t.isExpense)
+  double get _totalAmount => transactions
+      .where((t) => t.isExpense == _showExpense)
       .fold(0, (sum, t) => sum + t.amount);
 
   @override
@@ -55,26 +57,49 @@ class _StatsScreenState extends State<StatsScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 총 지출
+            // 지출/수입 토글
+            Center(
+              child: SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(
+                    value: true,
+                    label: Text('지출'),
+                  ),
+                  ButtonSegment(
+                    value: false,
+                    label: Text('수입'),
+                  ),
+                ],
+                selected: {_showExpense},
+                onSelectionChanged: (Set<bool> newSelection) {
+                  setState(() {
+                    _showExpense = newSelection.first;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // 총액
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    const Text(
-                      '이번달 총 지출',
-                      style: TextStyle(
+                    Text(
+                      '이번달 총 ${_showExpense ? '지출' : '수입'}',
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _formatAmount(_totalExpense),
-                      style: const TextStyle(
+                      _formatAmount(_totalAmount),
+                      style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Colors.red,
+                        color: _showExpense ? Colors.red : Colors.green,
                       ),
                     ),
                   ],
@@ -94,6 +119,13 @@ class _StatsScreenState extends State<StatsScreen> {
                     centerSpaceRadius: 40,
                   ),
                 ),
+              )
+            else
+              const SizedBox(
+                height: 250,
+                child: Center(
+                  child: Text('데이터가 없습니다'),
+                ),
               ),
             const SizedBox(height: 24),
 
@@ -101,20 +133,22 @@ class _StatsScreenState extends State<StatsScreen> {
             Card(
               child: Column(
                 children: [
-                  const ListTile(
+                  ListTile(
                     title: Text(
-                      '카테고리별 지출',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      '카테고리별 ${_showExpense ? '지출' : '수입'}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   ...categoryData.map((entry) {
-                    final percentage = (entry.value / _totalExpense * 100).toStringAsFixed(1);
+                    final percentage = _totalAmount > 0
+                        ? (entry.value / _totalAmount * 100).toStringAsFixed(1)
+                        : '0.0';
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: _getCategoryColor(entry.key).withOpacity(0.2),
+                        backgroundColor: getCategoryColor(entry.key).withOpacity(0.2),
                         child: Icon(
-                          _getCategoryIcon(entry.key),
-                          color: _getCategoryColor(entry.key),
+                          getCategoryIcon(entry.key),
+                          color: getCategoryColor(entry.key),
                         ),
                       ),
                       title: Text(entry.key),
@@ -145,12 +179,14 @@ class _StatsScreenState extends State<StatsScreen> {
       Colors.orange,
       Colors.purple,
       Colors.teal,
+      Colors.indigo,
+      Colors.pink,
     ];
 
     return data.asMap().entries.map((entry) {
       final index = entry.key;
       final data = entry.value;
-      final percentage = data.value / _totalExpense;
+      final percentage = _totalAmount > 0 ? data.value / _totalAmount : 0;
 
       return PieChartSectionData(
         color: colors[index % colors.length],
@@ -171,39 +207,5 @@ class _StatsScreenState extends State<StatsScreen> {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         )}';
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case '식비':
-        return Colors.red;
-      case '교통':
-        return Colors.blue;
-      case '쇼핑':
-        return Colors.green;
-      case '엔터':
-        return Colors.orange;
-      case '주거':
-        return Colors.purple;
-      default:
-        return Colors.teal;
-    }
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case '식비':
-        return Icons.restaurant;
-      case '교통':
-        return Icons.directions_bus;
-      case '쇼핑':
-        return Icons.shopping_bag;
-      case '엔터':
-        return Icons.movie;
-      case '주거':
-        return Icons.home;
-      default:
-        return Icons.category;
-    }
   }
 }
