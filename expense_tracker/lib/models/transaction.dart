@@ -140,38 +140,6 @@ class Installment {
     }
   }
 }
-final List<String> expenseCategories = [
-  '식비', '교통', '쇼핑', '엔터', '주거', '의료', '교육', '기타'
-];
-
-// 수입 카테고리
-final List<String> incomeCategories = [
-  '월급', '상여금', '투자수익', '용돈', '환급', '기타수입'
-];
-
-// 카테고리별 아이콘
-IconData getCategoryIcon(String category) {
-  final iconMap = {
-    // 지출
-    '식비': Icons.restaurant,
-    '교통': Icons.directions_bus,
-    '쇼핑': Icons.shopping_bag,
-    '엔터': Icons.movie,
-    '주거': Icons.home,
-    '의료': Icons.local_hospital,
-    '교육': Icons.school,
-    '재테크': Icons.trending_up,  // 수익률 아이콘
-    '기타': Icons.category,
-    // 수입
-    '월급': Icons.work,
-    '상여금': Icons.card_giftcard,
-    '투자수익': Icons.trending_up,
-    '용돈': Icons.attach_money,
-    '환급': Icons.reply,
-    '기타수입': Icons.add_circle,
-  };
-  return iconMap[category] ?? Icons.category;
-}
 
 // 재테크(투자) 클래스
 class Investment {
@@ -235,19 +203,43 @@ final List<String> incomeCategories = [
   '월급', '상여금', '투자수익', '용돈', '환급', '기타수입'
 ];
 
+// 카테고리별 아이콘
+IconData getCategoryIcon(String category) {
+  final iconMap = {
+    // 지출
+    '식비': Icons.restaurant,
+    '교통': Icons.directions_bus,
+    '쇼핑': Icons.shopping_bag,
+    '엔터': Icons.movie,
+    '주거': Icons.home,
+    '의료': Icons.local_hospital,
+    '교육': Icons.school,
+    '재테크': Icons.trending_up,
+    '기타': Icons.category,
+    // 수입
+    '월급': Icons.work,
+    '상여금': Icons.card_giftcard,
+    '투자수익': Icons.trending_up,
+    '용돈': Icons.attach_money,
+    '환급': Icons.reply,
+    '기타수입': Icons.add_circle,
+  };
+  return iconMap[category] ?? Icons.category;
+}
+
 // 카테고리별 색상
 Color getCategoryColor(String category) {
   final colorMap = {
     // 지출 - 다양한 색상
-    '식비': const Color(0xFFFF6B6B),      // 코랄
-    '교통': const Color(0xFF7B61FF),      // 볼록
-    '쇼핑': const Color(0xFFFFC93C),      // 노랑
-    '엔터': const Color(0xFF00D4AA),      // 민트
-    '주거': const Color(0xFFFF8E53),      // 주황
-    '의료': const Color(0xFF00B4D8),      // 하늘
-    '교육': const Color(0xFFFF5E7D),      // 핑크
-    '재테크': const Color(0xFF22C55E),     // 초록
-    '기타': const Color(0xFF9CA3AF),      // 회색
+    '식비': const Color(0xFFFF6B6B),
+    '교통': const Color(0xFF7B61FF),
+    '쇼핑': const Color(0xFFFFC93C),
+    '엔터': const Color(0xFF00D4AA),
+    '주거': const Color(0xFFFF8E53),
+    '의료': const Color(0xFF00B4D8),
+    '교육': const Color(0xFFFF5E7D),
+    '재테크': const Color(0xFF22C55E),
+    '기타': const Color(0xFF9CA3AF),
     // 수입 - 다양한 색상
     '월급': const Color(0xFF00D4AA),
     '상여금': const Color(0xFF7B61FF),
