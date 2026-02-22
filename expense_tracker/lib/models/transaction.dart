@@ -120,15 +120,15 @@ IconData getCategoryIcon(String category) {
 // 카테고리별 색상
 Color getCategoryColor(String category) {
   final colorMap = {
-    // 지출 - 빨강/주황 계열
-    '식비': Colors.red,
-    '교통': Colors.blue,
-    '쇼핑': Colors.green,
-    '엔터': Colors.orange,
-    '주거': Colors.purple,
-    '의료': Colors.teal,
-    '교육': Colors.indigo,
-    '기타': Colors.grey,
+    // 지출 - 다양한 색상
+    '식비': const Color(0xFFFF6B6B),      // 코랄
+    '교통': const Color(0xFF7B61FF),      // 볼록
+    '쇼핑': const Color(0xFFFFC93C),      // 노랑
+    '엔터': const Color(0xFF00D4AA),      // 민트
+    '주거': const Color(0xFFFF8E53),      // 주황
+    '의료': const Color(0xFF00B4D8),      // 하늘
+    '교육': const Color(0xFFFF5E7D),      // 핑크
+    '기타': const Color(0xFF9CA3AF),      // 회색
     // 수입 - 다양한 색상
     '월급': const Color(0xFF00D4AA),
     '상여금': const Color(0xFF7B61FF),

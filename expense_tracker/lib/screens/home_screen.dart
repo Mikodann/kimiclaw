@@ -458,16 +458,63 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           if (settings.monthlyGoal > 0) ...[
             const SizedBox(height: 20),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: progress,
-                backgroundColor: Colors.grey.shade800,
-                valueColor: AlwaysStoppedAnimation(
-                  isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
-                ),
-                minHeight: 10,
-              ),
+            // 애니메이션 진행률
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: progress),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeOutCubic,
+              builder: (context, animatedProgress, child) {
+                return Stack(
+                  children: [
+                    // 배경 바
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 24,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    // 진행 바
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        height: 24,
+                        width: MediaQuery.of(context).size.width * 0.85 * animatedProgress,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: isGoalMet
+                                ? [const Color(0xFF00D4AA), const Color(0xFF00B4D8)]
+                                : [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (isGoalMet
+                                      ? const Color(0xFF00D4AA)
+                                      : const Color(0xFFFF6B6B))
+                                  .withOpacity(0.5),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // 퍼센트 텍스트 (중앙)
+                    Positioned.fill(
+                      child: Center(
+                        child: Text(
+                          '${(animatedProgress * 100).toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 12),
             Row(
@@ -481,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  '${(progress * 100).toStringAsFixed(0)}%',
+                  '${(progress * 100).toStringAsFixed(0)}% 달성',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
