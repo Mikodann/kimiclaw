@@ -84,7 +84,62 @@ class SettingsStorage {
   }
 }
 
-// 지출 카테고리
+// 할부 클래스
+class Installment {
+  final String id;
+  final String title;
+  final double totalAmount;
+  final double monthlyAmount;
+  final int totalMonths;
+  int currentMonth;
+  final String category;
+  final DateTime startDate;
+
+  Installment({
+    required this.id,
+    required this.title,
+    required this.totalAmount,
+    required this.monthlyAmount,
+    required this.totalMonths,
+    this.currentMonth = 1,
+    required this.category,
+    required this.startDate,
+  });
+
+  bool get isComplete => currentMonth >= totalMonths;
+  int get remainingMonths => totalMonths - currentMonth;
+  double get remainingAmount => monthlyAmount * remainingMonths;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'totalAmount': totalAmount,
+    'monthlyAmount': monthlyAmount,
+    'totalMonths': totalMonths,
+    'currentMonth': currentMonth,
+    'category': category,
+    'startDate': startDate.toIso8601String(),
+  };
+
+  factory Installment.fromJson(Map<String, dynamic> json) {
+    return Installment(
+      id: json['id'],
+      title: json['title'],
+      totalAmount: (json['totalAmount'] as num).toDouble(),
+      monthlyAmount: (json['monthlyAmount'] as num).toDouble(),
+      totalMonths: json['totalMonths'],
+      currentMonth: json['currentMonth'] ?? 1,
+      category: json['category'],
+      startDate: DateTime.parse(json['startDate']),
+    );
+  }
+
+  void nextMonth() {
+    if (currentMonth < totalMonths) {
+      currentMonth++;
+    }
+  }
+}
 final List<String> expenseCategories = [
   '식비', '교통', '쇼핑', '엔터', '주거', '의료', '교육', '기타'
 ];

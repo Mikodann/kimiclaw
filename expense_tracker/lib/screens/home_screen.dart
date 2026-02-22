@@ -509,34 +509,44 @@ class _HomeScreenState extends State<HomeScreen> {
                           Positioned(
                             left: (constraints.maxWidth * displayProgress) - 28,
                             top: -4,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white,
-                                    Colors.grey.shade200,
-                                  ],
-                                ),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: (isGoalMet
-                                            ? const Color(0xFF00D4AA)
-                                            : const Color(0xFFFF6B6B))
-                                        .withOpacity(0.6),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: 1),
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              builder: (context, wiggle, child) {
+                                return Transform.translate(
+                                  offset: Offset(wiggle * 3, 0),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.white,
+                                          Colors.grey.shade200,
+                                        ],
+                                      ),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: (isGoalMet
+                                                  ? const Color(0xFF00D4AA)
+                                                  : const Color(0xFFFF6B6B))
+                                              .withOpacity(0.6),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        '🏃‍♂️',
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: const Center(
-                                child: Text(
-                                  '🏃',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ),
                         // 100% 달성 표시
