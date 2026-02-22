@@ -85,13 +85,13 @@ Color getCategoryColor(String category) {
     '의료': Colors.teal,
     '교육': Colors.indigo,
     '기타': Colors.grey,
-    // 수입 - 초록 계열
-    '월급': Colors.green.shade700,
-    '상여금': Colors.green.shade600,
-    '투자수익': Colors.green.shade500,
-    '용돈': Colors.green.shade400,
-    '환급': Colors.green.shade800,
-    '기타수입': Colors.green.shade300,
+    // 수입 - 다양한 색상
+    '월급': const Color(0xFF00D4AA),      // 민트
+    '상여금': const Color(0xFF7B61FF),    // 볼록
+    '투자수익': const Color(0xFFFFC93C),  // 노랑
+    '용돈': const Color(0xFFFF8E53),      // 주황
+    '환급': const Color(0xFF00B4D8),      // 하늘
+    '기타수입': const Color(0xFFFF5E7D),  // 핑크
   };
   return colorMap[category] ?? Colors.grey;
 }
