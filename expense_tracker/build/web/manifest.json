@@ -1,0 +1,21 @@
+{
+    "name": "expense_tracker",
+    "short_name": "가계부",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "간단한 가계부 앱",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512"
+        }
+    ]
+}

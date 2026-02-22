@@ -1,0 +1,1 @@
+ /Users/baekdonghyeon/development/kimiclaw/expense_tracker/build/web/manifest.json:  /Users/baekdonghyeon/development/kimiclaw/expense_tracker/web/index.html /Users/baekdonghyeon/development/kimiclaw/expense_tracker/web/manifest.json
