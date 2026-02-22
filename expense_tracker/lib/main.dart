@@ -109,7 +109,12 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
         ),
-        child: _screens[_selectedIndex],
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: _screens[_selectedIndex],
+          ),
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

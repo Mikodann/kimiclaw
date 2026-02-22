@@ -145,28 +145,24 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _buildBalanceCard(),
           ),
 
-          // 요약 카드
+          // 요약 카드 - 세로로 쌓기
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: _buildGlassCard(
-                      '수입',
-                      _totalIncome,
-                      const Color(0xFF00D4AA),
-                      Icons.arrow_downward,
-                    ),
+                  _buildGlassCard(
+                    '수입',
+                    _totalIncome,
+                    const Color(0xFF00D4AA),
+                    Icons.arrow_downward,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildGlassCard(
-                      '지출',
-                      _totalExpense,
-                      const Color(0xFFFF6B6B),
-                      Icons.arrow_upward,
-                    ),
+                  const SizedBox(height: 12),
+                  _buildGlassCard(
+                    '지출',
+                    _totalExpense,
+                    const Color(0xFFFF6B6B),
+                    Icons.arrow_upward,
                   ),
                 ],
               ),
@@ -263,22 +259,19 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
+          // 세로로 쌓기
+          Column(
             children: [
-              Expanded(
-                child: _buildSettingInput(
-                  '시작 금액',
-                  _startingController,
-                  Icons.account_balance_wallet,
-                ),
+              _buildSettingInput(
+                '시작 금액',
+                _startingController,
+                Icons.account_balance_wallet,
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildSettingInput(
-                  '이번달 목표',
-                  _goalController,
-                  Icons.flag,
-                ),
+              const SizedBox(height: 12),
+              _buildSettingInput(
+                '이번달 목표',
+                _goalController,
+                Icons.flag,
               ),
             ],
           ),

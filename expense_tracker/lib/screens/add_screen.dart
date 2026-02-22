@@ -133,20 +133,28 @@ class _AddScreenState extends State<AddScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 총 개월 / 현재 회차
-              Row(
+              // 총 개월 / 현재 회차 - 세로로 쌓기
+              Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _totalMonthsController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: '총 개월',
-                        border: OutlineInputBorder(),
-                      ),
+                  TextField(
+                    controller: _totalMonthsController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: '총 개월',
+                      border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _currentMonthController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: '현재 회차',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
                   Expanded(
                     child: TextField(
                       controller: _currentMonthController,
