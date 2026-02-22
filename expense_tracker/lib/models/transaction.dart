@@ -15,7 +15,7 @@ class Transaction {
     required this.isExpense,
   });
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'title': title,

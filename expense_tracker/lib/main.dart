@@ -63,7 +63,7 @@ class _MainScreenState extends State<MainScreen> {
             label: '입력',
           ),
           NavigationDestination(
-            icon: Icon(Icons.pie_chart_outlined),
+            icon: Icon(Icons.pie_chart_outline),
             selectedIcon: Icon(Icons.pie_chart),
             label: '통계',
           ),
