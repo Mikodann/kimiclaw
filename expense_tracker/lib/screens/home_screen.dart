@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Spacer(),
                     TextButton(
                       onPressed: () {},
-                      child: const Text('전첳 보기'),
+                      child: const Text('전체 보기'),
                     ),
                   ],
                 ),
