@@ -160,6 +160,7 @@ IconData getCategoryIcon(String category) {
     '주거': Icons.home,
     '의료': Icons.local_hospital,
     '교육': Icons.school,
+    '재테크': Icons.trending_up,  // 수익률 아이콘
     '기타': Icons.category,
     // 수입
     '월급': Icons.work,
@@ -172,6 +173,68 @@ IconData getCategoryIcon(String category) {
   return iconMap[category] ?? Icons.category;
 }
 
+// 재테크(투자) 클래스
+class Investment {
+  late String id;
+  late String title;
+  late String type;
+  late double principal;
+  late double currentValue;
+  late DateTime startDate;
+  String? memo;
+
+  Investment({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.principal,
+    required this.currentValue,
+    required this.startDate,
+    this.memo,
+  });
+
+  double get profit => currentValue - principal;
+  double get profitRate => principal > 0 ? (profit / principal) * 100 : 0;
+  bool get isProfit => profit >= 0;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'type': type,
+    'principal': principal,
+    'currentValue': currentValue,
+    'startDate': startDate.toIso8601String(),
+    'memo': memo,
+  };
+
+  factory Investment.fromJson(Map<String, dynamic> json) {
+    return Investment(
+      id: json['id'],
+      title: json['title'],
+      type: json['type'],
+      principal: (json['principal'] as num).toDouble(),
+      currentValue: (json['currentValue'] as num).toDouble(),
+      startDate: DateTime.parse(json['startDate']),
+      memo: json['memo'],
+    );
+  }
+}
+
+// 투자 유형
+final List<String> investmentTypes = [
+  '적금', '주식', '코인', '펀드', '채권', '기타'
+];
+
+// 지출 카테고리
+final List<String> expenseCategories = [
+  '식비', '교통', '쇼핑', '엔터', '주거', '의료', '교육', '재테크', '기타'
+];
+
+// 수입 카테고리
+final List<String> incomeCategories = [
+  '월급', '상여금', '투자수익', '용돈', '환급', '기타수입'
+];
+
 // 카테고리별 색상
 Color getCategoryColor(String category) {
   final colorMap = {
@@ -183,6 +246,7 @@ Color getCategoryColor(String category) {
     '주거': const Color(0xFFFF8E53),      // 주황
     '의료': const Color(0xFF00B4D8),      // 하늘
     '교육': const Color(0xFFFF5E7D),      // 핑크
+    '재테크': const Color(0xFF22C55E),     // 초록
     '기타': const Color(0xFF9CA3AF),      // 회색
     // 수입 - 다양한 색상
     '월급': const Color(0xFF00D4AA),
