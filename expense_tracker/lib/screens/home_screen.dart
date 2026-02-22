@@ -11,11 +11,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Transaction> transactions = [];
+  BudgetSettings settings = BudgetSettings();
+  bool _showSettings = false;
+
+  final _startingController = TextEditingController();
+  final _goalController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadDummyData();
+    _startingController.text = settings.startingAmount.toStringAsFixed(0);
+    _goalController.text = settings.monthlyGoal.toStringAsFixed(0);
   }
 
   void _loadDummyData() {
@@ -57,7 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
       .where((t) => !t.isExpense)
       .fold(0, (sum, t) => sum + t.amount);
 
-  double get _balance => _totalIncome - _totalExpense;
+  double get _currentBalance => settings.startingAmount + _totalIncome - _totalExpense;
+
+  double get _remainingToGoal => settings.monthlyGoal - (_totalIncome - _totalExpense);
 
   @override
   Widget build(BuildContext context) {
@@ -92,41 +101,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: _balance >= 0
-                            ? [const Color(0xFF00D4AA), const Color(0xFF00B4D8)]
-                            : [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)],
+                  // 설정 버튼
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showSettings = !_showSettings;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2A2A3E),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (_balance >= 0
-                                  ? const Color(0xFF00D4AA)
-                                  : const Color(0xFFFF6B6B))
-                              .withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      '잔액 ${_formatAmount(_balance)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                      child: Icon(
+                        _showSettings ? Icons.close : Icons.settings,
+                        color: const Color(0xFF00D4AA),
+                        size: 20,
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+          ),
+
+          // 설정 패널
+          if (_showSettings)
+            SliverToBoxAdapter(
+              child: _buildSettingsPanel(),
+            ),
+
+          // 예상 잔액 카드
+          SliverToBoxAdapter(
+            child: _buildBalanceCard(),
           ),
 
           // 요약 카드
@@ -211,6 +219,268 @@ class _HomeScreenState extends State<HomeScreen> {
           const SliverToBoxAdapter(
             child: SizedBox(height: 24),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsPanel() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF1A1A2E).withOpacity(0.9),
+            const Color(0xFF2A2A3E).withOpacity(0.7),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF00D4AA).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '예산 설정',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSettingInput(
+                  '시작 금액',
+                  _startingController,
+                  Icons.account_balance_wallet,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildSettingInput(
+                  '이번달 목표',
+                  _goalController,
+                  Icons.flag,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () {
+                setState(() {
+                  settings.startingAmount =
+                      double.tryParse(_startingController.text) ?? 0;
+                  settings.monthlyGoal =
+                      double.tryParse(_goalController.text) ?? 0;
+                  _showSettings = false;
+                });
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF00D4AA),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              child: const Text('저장'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingInput(
+    String label,
+    TextEditingController controller,
+    IconData icon,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A3E),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+            decoration: InputDecoration(
+              prefixIcon: Icon(icon, color: const Color(0xFF00D4AA), size: 20),
+              prefixText: '₩ ',
+              prefixStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBalanceCard() {
+    final isGoalMet = _remainingToGoal <= 0;
+    final progress = settings.monthlyGoal > 0
+        ? ((_totalIncome - _totalExpense) / settings.monthlyGoal).clamp(0.0, 1.0)
+        : 0.0;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isGoalMet
+              ? [const Color(0xFF00D4AA).withOpacity(0.3), const Color(0xFF00B4D8).withOpacity(0.3)]
+              : [const Color(0xFFFF6B6B).withOpacity(0.3), const Color(0xFFFF8E53).withOpacity(0.3)],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: (isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B))
+              .withOpacity(0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B))
+                .withOpacity(0.2),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '예상 잔액',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _formatAmount(_currentBalance),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isGoalMet
+                      ? const Color(0xFF00D4AA).withOpacity(0.2)
+                      : const Color(0xFFFF6B6B).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isGoalMet
+                        ? const Color(0xFF00D4AA).withOpacity(0.3)
+                        : const Color(0xFFFF6B6B).withOpacity(0.3),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      isGoalMet ? '목표 달성!' : '남은 목표',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isGoalMet
+                          ? '+${_formatAmount(_remainingToGoal.abs())}'
+                          : _formatAmount(_remainingToGoal),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (settings.monthlyGoal > 0) ...[
+            const SizedBox(height: 20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.grey.shade800,
+                valueColor: AlwaysStoppedAnimation(
+                  isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
+                ),
+                minHeight: 10,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '목표: ${_formatAmount(settings.monthlyGoal)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+                Text(
+                  '${(progress * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isGoalMet ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -377,5 +647,12 @@ class _HomeScreenState extends State<HomeScreen> {
       return '오늘';
     }
     return '${date.month}월 ${date.day}일';
+  }
+
+  @override
+  void dispose() {
+    _startingController.dispose();
+    _goalController.dispose();
+    super.dispose();
   }
 }

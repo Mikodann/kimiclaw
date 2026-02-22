@@ -40,7 +40,28 @@ class Transaction {
   }
 }
 
-// 지출 카테고리
+// 설정 클래스
+class BudgetSettings {
+  double startingAmount;  // 시작 금액
+  double monthlyGoal;     // 이번달 목표
+
+  BudgetSettings({
+    this.startingAmount = 0,
+    this.monthlyGoal = 0,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'startingAmount': startingAmount,
+    'monthlyGoal': monthlyGoal,
+  };
+
+  factory BudgetSettings.fromJson(Map<String, dynamic> json) {
+    return BudgetSettings(
+      startingAmount: json['startingAmount'] ?? 0,
+      monthlyGoal: json['monthlyGoal'] ?? 0,
+    );
+  }
+}
 final List<String> expenseCategories = [
   '식비', '교통', '쇼핑', '엔터', '주거', '의료', '교육', '기타'
 ];
