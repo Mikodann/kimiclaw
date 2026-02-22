@@ -111,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
+            constraints: const BoxConstraints(maxWidth: 450),
             child: _screens[_selectedIndex],
           ),
         ),
