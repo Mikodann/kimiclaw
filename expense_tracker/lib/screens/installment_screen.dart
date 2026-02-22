@@ -425,171 +425,374 @@ class _InstallmentScreenState extends State<InstallmentScreen> {
     final progress = installment.currentMonth / installment.totalMonths;
     final isComplete = installment.isComplete;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF1A1A2E).withOpacity(0.6),
-            const Color(0xFF2A2A3E).withOpacity(0.4),
+    return Dismissible(
+      key: Key(installment.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFF6B6B).withOpacity(0.3),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        alignment: Alignment.centerRight,
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              '삭제',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(width: 8),
+            Icon(Icons.delete, color: Colors.white),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isComplete
-              ? const Color(0xFF00D4AA).withOpacity(0.3)
-              : Colors.white.withOpacity(0.08),
-          width: 1,
-        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      getCategoryColor(installment.category).withOpacity(0.3),
-                      getCategoryColor(installment.category).withOpacity(0.1),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  getCategoryIcon(installment.category),
-                  color: getCategoryColor(installment.category),
-                  size: 24,
-                ),
+      onDismissed: (_) {
+        setState(() {
+          installments.removeWhere((i) => i.id == installment.id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('할부가 삭제되었습니다')),
+        );
+      },
+      confirmDismiss: (_) async {
+        return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: const Color(0xFF1A1A2E),
+            title: const Text('삭제 확인', style: TextStyle(color: Colors.white)),
+            content: const Text(
+              '정말 삭제하시겠습니까?',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('취소'),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      installment.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF6B6B),
+                ),
+                child: const Text('삭제'),
+              ),
+            ],
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTap: () => _showEditDialog(installment),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF1A1A2E).withOpacity(0.6),
+                const Color(0xFF2A2A3E).withOpacity(0.4),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isComplete
+                  ? const Color(0xFF00D4AA).withOpacity(0.3)
+                  : Colors.white.withOpacity(0.08),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          getCategoryColor(installment.category).withOpacity(0.3),
+                          getCategoryColor(installment.category).withOpacity(0.1),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      getCategoryIcon(installment.category),
+                      color: getCategoryColor(installment.category),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          installment.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${installment.category} · 월 ${_formatAmount(installment.monthlyAmount)}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isComplete)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00D4AA).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: const Color(0xFF00D4AA).withOpacity(0.3),
+                        ),
+                      ),
+                      child: const Text(
+                        '완료',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00D4AA),
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${installment.category} · 월 ${_formatAmount(installment.monthlyAmount)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade500,
+                ],
+              ),
+              const SizedBox(height: 16),
+              // 진행 상황
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '진행 상황',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  Text(
+                    '${installment.currentMonth}/${installment.totalMonths}회차',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey.shade800,
+                  valueColor: AlwaysStoppedAnimation(
+                    isComplete ? const Color(0xFF00D4AA) : const Color(0xFF7B61FF),
+                  ),
+                  minHeight: 10,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '총 ${_formatAmount(installment.totalAmount)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  Text(
+                    '남은 금액: ${_formatAmount(installment.remainingAmount)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: isComplete ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
+                    ),
+                  ),
+                ],
+              ),
+              if (!isComplete) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          setState(() {
+                            installment.nextMonth();
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF00D4AA),
+                          side: const BorderSide(color: Color(0xFF00D4AA)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('다음 회차로'),
                       ),
                     ),
                   ],
                 ),
-              ),
-              if (isComplete)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00D4AA).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFF00D4AA).withOpacity(0.3),
-                    ),
-                  ),
-                  child: const Text(
-                    '완료',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF00D4AA),
-                    ),
+              ],
+              // 수정 힌트
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  '탭하여 수정 · 오른쪽으로 밀어 삭제',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
                   ),
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          // 진행 상황
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ),
+      ),
+    );
+  }
+
+  void _showEditDialog(Installment installment) {
+    final titleController = TextEditingController(text: installment.title);
+    final totalController = TextEditingController(text: installment.totalAmount.toStringAsFixed(0));
+    final monthlyController = TextEditingController(text: installment.monthlyAmount.toStringAsFixed(0));
+    final totalMonthsController = TextEditingController(text: installment.totalMonths.toString());
+    final currentMonthController = TextEditingController(text: installment.currentMonth.toString());
+    String selectedCategory = installment.category;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        title: const Text('할부 수정', style: TextStyle(color: Colors.white)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '진행 상황',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
+              TextField(
+                controller: titleController,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '항목명',
+                  labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
-              Text(
-                '${installment.currentMonth}/${installment.totalMonths}회차',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              const SizedBox(height: 12),
+              TextField(
+                controller: totalController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '총 금액',
+                  labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey.shade800,
-              valueColor: AlwaysStoppedAnimation(
-                isComplete ? const Color(0xFF00D4AA) : const Color(0xFF7B61FF),
-              ),
-              minHeight: 10,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '총 ${_formatAmount(installment.totalAmount)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500,
+              const SizedBox(height: 12),
+              TextField(
+                controller: monthlyController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '월 납입금',
+                  labelStyle: TextStyle(color: Colors.grey),
                 ),
               ),
-              Text(
-                '남은 금액: ${_formatAmount(installment.remainingAmount)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isComplete ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
-                ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: totalMonthsController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: '총 개월',
+                        labelStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: currentMonthController,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: '현재 회차',
+                        labelStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          if (!isComplete) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    installment.nextMonth();
-                  });
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                dropdownColor: const Color(0xFF2A2A3E),
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: '카테고리',
+                  labelStyle: TextStyle(color: Colors.grey),
+                ),
+                items: expenseCategories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  selectedCategory = value!;
                 },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00D4AA),
-                  side: const BorderSide(color: Color(0xFF00D4AA)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-                child: const Text('다음 회차로'),
               ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              setState(() {
+                installment.title = titleController.text;
+                installment.totalAmount = double.tryParse(totalController.text) ?? installment.totalAmount;
+                installment.monthlyAmount = double.tryParse(monthlyController.text) ?? installment.monthlyAmount;
+                installment.totalMonths = int.tryParse(totalMonthsController.text) ?? installment.totalMonths;
+                installment.currentMonth = int.tryParse(currentMonthController.text) ?? installment.currentMonth;
+                installment.category = selectedCategory;
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('할부가 수정되었습니다')),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF00D4AA),
             ),
-          ],
+            child: const Text('저장'),
+          ),
         ],
       ),
     );
