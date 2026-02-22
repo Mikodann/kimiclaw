@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../models/transaction.dart';
 
 class InvestmentScreen extends StatefulWidget {
@@ -135,6 +136,11 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
           // 총 자산 요약
           SliverToBoxAdapter(
             child: _buildSummaryCard(),
+          ),
+
+          // 파이차트 - 투자 비율
+          SliverToBoxAdapter(
+            child: _buildPieChart(),
           ),
 
           // 추가 폼
@@ -305,6 +311,154 @@ class _InvestmentScreenState extends State<InvestmentScreen> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPieChart() {
+    if (investments.isEmpty) return const SizedBox.shrink();
+
+    // 현재 가치 기준으로 비율 계산
+    final totalValue = _totalCurrentValue;
+    if (totalValue == 0) return const SizedBox.shrink();
+
+    // 투자 항목을 현재 가치 기준으로 정렬
+    final sortedInvestments = List<Investment>.from(investments)
+      ..sort((a, b) => b.currentValue.compareTo(a.currentValue));
+
+    // 상위 5개만 표시, 나머지는 "기타"로 묶기
+    final List<PieChartSectionData> sections = [];
+    final colors = [
+      const Color(0xFF22C55E), // 초록
+      const Color(0xFF00D4AA), // 민트
+      const Color(0xFF00B4D8), // 하늘
+      const Color(0xFF7B61FF), // 볼록
+      const Color(0xFFFFC93C), // 노랑
+      const Color(0xFFFF8E53), // 주황
+    ];
+
+    double othersValue = 0;
+
+    for (int i = 0; i < sortedInvestments.length; i++) {
+      final inv = sortedInvestments[i];
+      final percentage = inv.currentValue / totalValue;
+
+      if (i < 5) {
+        sections.add(
+          PieChartSectionData(
+            color: colors[i % colors.length],
+            value: inv.currentValue,
+            title: '${inv.title}\n${(percentage * 100).toStringAsFixed(1)}%',
+            radius: 80,
+            titleStyle: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              height: 1.2,
+            ),
+            titlePositionPercentageOffset: 0.6,
+          ),
+        );
+      } else {
+        othersValue += inv.currentValue;
+      }
+    }
+
+    // 기타 항목 추가
+    if (othersValue > 0) {
+      final othersPercentage = othersValue / totalValue;
+      sections.add(
+        PieChartSectionData(
+          color: const Color(0xFF9CA3AF),
+          value: othersValue,
+          title: '기타\n${(othersPercentage * 100).toStringAsFixed(1)}%',
+          radius: 80,
+          titleStyle: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            height: 1.2,
+          ),
+          titlePositionPercentageOffset: 0.6,
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF1A1A2E).withOpacity(0.6),
+            const Color(0xFF2A2A3E).withOpacity(0.4),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            '투자 비율',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 250,
+            child: PieChart(
+              PieChartData(
+                sections: sections,
+                sectionsSpace: 2,
+                centerSpaceRadius: 40,
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {},
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // 범례
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: sortedInvestments.take(5).map((inv) {
+              final index = sortedInvestments.indexOf(inv);
+              final percentage = (inv.currentValue / totalValue * 100).toStringAsFixed(1);
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: colors[index % colors.length],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${inv.title} ($percentage%)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
           ),
         ],
       ),
