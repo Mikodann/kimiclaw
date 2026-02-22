@@ -265,26 +265,17 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   List<PieChartSectionData> _buildPieSections(List<MapEntry<String, double>> data) {
-    final colors = [
-      const Color(0xFFFF6B6B),
-      const Color(0xFF7B61FF),
-      const Color(0xFF00D4AA),
-      const Color(0xFFFF8E53),
-      const Color(0xFF00B4D8),
-      const Color(0xFFFF5E7D),
-      const Color(0xFF7EE8FA),
-      const Color(0xFFFFC93C),
-    ];
-
     return data.asMap().entries.map((entry) {
       final index = entry.key;
       final categoryData = entry.value;
       final percentage = _totalAmount > 0 ? categoryData.value / _totalAmount : 0;
       final isTouched = index == _touchedIndex;
       final radius = isTouched ? 95.0 : 85.0;
+      // 카테고리 색상 사용
+      final color = getCategoryColor(categoryData.key);
 
       return PieChartSectionData(
-        color: colors[index % colors.length],
+        color: color,
         value: categoryData.value,
         title: '${categoryData.key}\n${(percentage * 100).toStringAsFixed(0)}%',
         radius: radius,
@@ -300,12 +291,12 @@ class _StatsScreenState extends State<StatsScreen> {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: colors[index % colors.length],
+                  color: color,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: colors[index % colors.length].withOpacity(0.5),
+                      color: color.withOpacity(0.5),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
