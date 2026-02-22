@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 헤더
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
                   Column(
@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 요약 카드 - 세로로 쌓기
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 children: [
                   _buildGlassCard(
@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 빠른 입력
           const SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: QuickAdd(),
             ),
           ),
@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 최근 내역 헤더
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
                 children: [
                   const Text(
@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // 최근 내역 리스트
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -361,8 +361,8 @@ class _HomeScreenState extends State<HomeScreen> {
         : 0.0;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isGoalMet
@@ -644,7 +644,7 @@ class _HomeScreenState extends State<HomeScreen> {
     IconData icon,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -710,8 +710,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTransactionItem(Transaction t) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
