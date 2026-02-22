@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Transaction {
   final String id;
@@ -42,8 +43,8 @@ class Transaction {
 
 // 설정 클래스
 class BudgetSettings {
-  double startingAmount;  // 시작 금액
-  double monthlyGoal;     // 이번달 목표
+  double startingAmount;
+  double monthlyGoal;
 
   BudgetSettings({
     this.startingAmount = 0,
@@ -57,11 +58,33 @@ class BudgetSettings {
 
   factory BudgetSettings.fromJson(Map<String, dynamic> json) {
     return BudgetSettings(
-      startingAmount: json['startingAmount'] ?? 0,
-      monthlyGoal: json['monthlyGoal'] ?? 0,
+      startingAmount: (json['startingAmount'] as num?)?.toDouble() ?? 0,
+      monthlyGoal: (json['monthlyGoal'] as num?)?.toDouble() ?? 0,
     );
   }
 }
+
+// 설정 저장/불러오기
+class SettingsStorage {
+  static const String _keyStartingAmount = 'starting_amount';
+  static const String _keyMonthlyGoal = 'monthly_goal';
+
+  static Future<void> saveSettings(BudgetSettings settings) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_keyStartingAmount, settings.startingAmount);
+    await prefs.setDouble(_keyMonthlyGoal, settings.monthlyGoal);
+  }
+
+  static Future<BudgetSettings> loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    return BudgetSettings(
+      startingAmount: prefs.getDouble(_keyStartingAmount) ?? 0,
+      monthlyGoal: prefs.getDouble(_keyMonthlyGoal) ?? 0,
+    );
+  }
+}
+
+// 지출 카테고리
 final List<String> expenseCategories = [
   '식비', '교통', '쇼핑', '엔터', '주거', '의료', '교육', '기타'
 ];
@@ -107,13 +130,12 @@ Color getCategoryColor(String category) {
     '교육': Colors.indigo,
     '기타': Colors.grey,
     // 수입 - 다양한 색상
-    '월급': const Color(0xFF00D4AA),      // 민트
-    '상여금': const Color(0xFF7B61FF),    // 볼록
-    '투자수익': const Color(0xFFFFC93C),  // 노랑
-    '용돈': const Color(0xFFFF8E53),      // 주황
-    '환급': const Color(0xFF00B4D8),      // 하늘
-    '기타수입': const Color(0xFFFF5E7D),  // 핑크
+    '월급': const Color(0xFF00D4AA),
+    '상여금': const Color(0xFF7B61FF),
+    '투자수익': const Color(0xFFFFC93C),
+    '용돈': const Color(0xFFFF8E53),
+    '환급': const Color(0xFF00B4D8),
+    '기타수입': const Color(0xFFFF5E7D),
   };
   return colorMap[category] ?? Colors.grey;
 }
-

@@ -21,8 +21,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadDummyData();
-    _startingController.text = settings.startingAmount.toStringAsFixed(0);
-    _goalController.text = settings.monthlyGoal.toStringAsFixed(0);
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final loaded = await SettingsStorage.loadSettings();
+    setState(() {
+      settings = loaded;
+      _startingController.text = settings.startingAmount.toStringAsFixed(0);
+      _goalController.text = settings.monthlyGoal.toStringAsFixed(0);
+    });
   }
 
   void _loadDummyData() {
@@ -278,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 setState(() {
                   settings.startingAmount =
                       double.tryParse(_startingController.text) ?? 0;
@@ -286,6 +294,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       double.tryParse(_goalController.text) ?? 0;
                   _showSettings = false;
                 });
+                // 로컬에 저장
+                await SettingsStorage.saveSettings(settings);
               },
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF00D4AA),
