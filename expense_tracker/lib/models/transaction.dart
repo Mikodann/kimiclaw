@@ -95,3 +95,4 @@ Color getCategoryColor(String category) {
   };
   return colorMap[category] ?? Colors.grey;
 }
+
