@@ -494,6 +494,16 @@ export default function IsometricThemeParkMobile() {
         .tile-grass { background: repeating-linear-gradient(0deg,#79b85f 0 4px,#82c268 4px 8px); }
         .tile-path { background: repeating-linear-gradient(45deg,#d6bf8c 0 4px,#ccb57f 4px 8px); }
         .tile-lot { background: repeating-linear-gradient(45deg,#9ccf85 0 4px,#93c87c 4px 8px); }
+        .tile-grass { position: relative; }
+        .tile-grass::after { content:""; position:absolute; inset:0; background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,.12) 6px 7px); }
+        .iso-shadow { filter: drop-shadow(2px 3px 0 rgba(0,0,0,.35)); }
+        .facility-sprite { width: 28px; height: 28px; border:2px solid #24301f; image-rendering: pixelated; box-shadow: inset 0 0 0 2px rgba(255,255,255,.2); }
+        .spr-ride { background: linear-gradient(#d64040 0 35%, #f3c145 35% 65%, #2d4fbf 65% 100%); }
+        .spr-shop { background: linear-gradient(#f6d46f 0 40%, #db6b39 40% 100%); }
+        .spr-utility { background: linear-gradient(#78b6d9 0 45%, #d8edf8 45% 100%); }
+        .spr-path { background: #ccb57f; }
+        .guest-sprite { width:8px; height:10px; border:1px solid #1f2a1c; background: linear-gradient(#4aa3ff 0 50%, #f4d2a0 50% 100%); image-rendering: pixelated; }
+      
       `}</style>
       <header className="px-3 pt-3 pb-2 z-20">
         <div className="pixel-panel bg-[#d7e9c8] p-2.5">
@@ -536,11 +546,11 @@ export default function IsometricThemeParkMobile() {
                 const bg = tile.type === "grass" ? "tile-grass" : tile.type === "path" ? "tile-path" : "tile-lot";
                 return <div key={`${x}-${y}`} className={`absolute ${bg} border border-white/45`} style={{ width: TILE_W, height: TILE_H, left: pos.x - TILE_W / 2, top: pos.y - TILE_H / 2, transform: "skewY(-26.565deg) scaleY(0.5)", borderRadius: 2 }} />;
               }))}
-              {builtFacilities.map((f) => { const pos = isoToScreen(f.x, f.y); return <div key={`f-${f.key}`} className="absolute text-xl bg-[#f5f0d8] border-2 border-[#2f3e2c] w-7 h-7 flex items-center justify-center" style={{ left: pos.x - 12, top: pos.y - 32 }}>{f.emoji}{f.meta.broken ? "❌" : ""}</div>; })}
-              {visitors.map((v) => { const pos = isoToScreen(v.x, v.y); return <div key={v.id} className="absolute transition-all duration-500 ease-linear" style={{ left: pos.x - 6, top: pos.y - 12 }}><div className="w-3 h-3 rounded-full bg-sky-600 border border-white shadow" /></div>; })}
+              {builtFacilities.map((f) => { const pos = isoToScreen(f.x, f.y); return <div key={`f-${f.key}`} className="absolute iso-shadow" style={{ left: pos.x - 12, top: pos.y - 32 }}><div className={`facility-sprite ${f.category === "ride" ? "spr-ride" : f.category === "shop" ? "spr-shop" : f.category === "utility" ? "spr-utility" : "spr-path"}`} /><div className="text-[10px] leading-none">{f.meta.broken ? "❌" : ""}</div></div>; })}
+              {visitors.map((v) => { const pos = isoToScreen(v.x, v.y); return <div key={v.id} className="absolute transition-all duration-500 ease-linear" style={{ left: pos.x - 6, top: pos.y - 12 }}><div className="guest-sprite" /></div>; })}
               {hoverTile && isInside(hoverTile.x, hoverTile.y) && (() => { const pos = isoToScreen(hoverTile.x, hoverTile.y); return <div className={`absolute border-2 ${placeValid ? "border-emerald-500/80" : "border-red-500/90"}`} style={{ width: TILE_W, height: TILE_H, left: pos.x - TILE_W / 2, top: pos.y - TILE_H / 2, transform: "skewY(-26.565deg) scaleY(0.5)", borderRadius: 2 }} />; })()}
             </div>
-            <div className="absolute left-2 top-2 text-[11px] bg-white/80 rounded-lg px-2 py-1">드래그: 이동 · 핀치: 줌 · 시설 탭: 관리</div>
+            <div className="absolute left-2 top-2 text-[11px] bg-white/80 rounded-lg px-2 py-1">🌳 드래그: 이동 · 핀치: 줌 · 시설 탭: 관리</div>
           </div>
         </main>
       ) : (
