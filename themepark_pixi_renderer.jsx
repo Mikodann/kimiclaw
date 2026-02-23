@@ -1,9 +1,29 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Application, Container, Graphics, Stage, Text } from "@pixi/react";
+import { Container, Graphics, Sprite, Stage, Text } from "@pixi/react";
 import { BUILDINGS, MAP_SIZE, createInitialGameState, isoToScreen, placeBuilding, screenToIso, tickOneMinute } from "./themepark_game_core";
 
 const TILE_W = 64;
 const TILE_H = 32;
+
+const TILE_SPRITES = {
+  grass: "/assets/sprites/tiles/grass_iso_64x32.png",
+  path: "/assets/sprites/tiles/path_iso_64x32.png",
+  facility: "/assets/sprites/tiles/lot_iso_64x32.png",
+};
+
+const FACILITY_SPRITES = {
+  rollercoaster: "/assets/sprites/facilities/rollercoaster_64x64.png",
+  carousel: "/assets/sprites/facilities/carousel_64x64.png",
+  viking: "/assets/sprites/facilities/viking_64x64.png",
+  ferris: "/assets/sprites/facilities/ferris_64x64.png",
+  bumper: "/assets/sprites/facilities/bumper_64x64.png",
+  waterslide: "/assets/sprites/facilities/waterslide_64x64.png",
+  burger: "/assets/sprites/facilities/burger_64x64.png",
+  drink: "/assets/sprites/facilities/drink_64x64.png",
+  restroom: "/assets/sprites/facilities/restroom_64x64.png",
+};
+
+const GUEST_SPRITE = "/assets/sprites/guests/guest_blue_16x24.png";
 
 function drawIsoTile(g, color = 0x79b85f) {
   g.clear();
@@ -20,30 +40,34 @@ function drawIsoTile(g, color = 0x79b85f) {
 function Tile({ x, y, tileType, cam }) {
   const pos = isoToScreen(x, y, TILE_W, TILE_H);
   const color = tileType === "grass" ? 0x7dbf62 : tileType === "path" ? 0xd8bf8b : 0x98cb82;
+  const texture = TILE_SPRITES[tileType] || TILE_SPRITES.facility;
   return (
-    <Graphics
-      x={cam.x + pos.x - TILE_W / 2}
-      y={cam.y + pos.y - TILE_H / 2}
-      draw={(g) => drawIsoTile(g, color)}
-    />
+    <Container x={cam.x + pos.x - TILE_W / 2} y={cam.y + pos.y - TILE_H / 2}>
+      <Sprite image={texture} width={TILE_W} height={TILE_H} />
+      <Graphics draw={(g) => drawIsoTile(g, color)} alpha={0.25} />
+    </Container>
   );
 }
 
 function FacilitySprite({ facility, cam }) {
   const pos = isoToScreen(facility.x, facility.y, TILE_W, TILE_H);
-  const tint =
-    facility.category === "ride" ? 0xd64040 : facility.category === "shop" ? 0xdb8c39 : 0x78b6d9;
+  const spritePath = FACILITY_SPRITES[facility.id];
+  const tint = facility.category === "ride" ? 0xd64040 : facility.category === "shop" ? 0xdb8c39 : 0x78b6d9;
   return (
-    <Container x={cam.x + pos.x - 14} y={cam.y + pos.y - 30}>
-      <Graphics
-        draw={(g) => {
-          g.clear();
-          g.lineStyle(2, 0x24301f, 1);
-          g.beginFill(tint);
-          g.drawRect(0, 0, 28, 28);
-          g.endFill();
-        }}
-      />
+    <Container x={cam.x + pos.x - 16} y={cam.y + pos.y - 38}>
+      {spritePath ? (
+        <Sprite image={spritePath} width={32} height={32} />
+      ) : (
+        <Graphics
+          draw={(g) => {
+            g.clear();
+            g.lineStyle(2, 0x24301f, 1);
+            g.beginFill(tint);
+            g.drawRect(0, 0, 28, 28);
+            g.endFill();
+          }}
+        />
+      )}
       <Text text={facility.meta?.broken ? "❌" : ""} style={{ fontSize: 10 }} x={2} y={2} />
     </Container>
   );
@@ -52,20 +76,18 @@ function FacilitySprite({ facility, cam }) {
 function GuestSprite({ guest, cam }) {
   const pos = isoToScreen(guest.x, guest.y, TILE_W, TILE_H);
   return (
-    <Graphics
-      x={cam.x + pos.x - 4}
-      y={cam.y + pos.y - 10}
-      draw={(g) => {
-        g.clear();
-        g.lineStyle(1, 0x1f2a1c, 1);
-        g.beginFill(0x4aa3ff);
-        g.drawRect(0, 0, 8, 5);
-        g.endFill();
-        g.beginFill(0xf4d2a0);
-        g.drawRect(0, 5, 8, 5);
-        g.endFill();
-      }}
-    />
+    <Container x={cam.x + pos.x - 4} y={cam.y + pos.y - 12}>
+      <Sprite image={GUEST_SPRITE} width={8} height={12} />
+      <Graphics
+        draw={(g) => {
+          g.clear();
+          g.lineStyle(1, 0x1f2a1c, 0.5);
+          g.beginFill(0x000000, 0.15);
+          g.drawEllipse(4, 12, 4, 2);
+          g.endFill();
+        }}
+      />
+    </Container>
   );
 }
 

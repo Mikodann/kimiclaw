@@ -23,4 +23,8 @@ export default function App() {
 ## 설계 포인트
 - 게임 루프/경제/방문객 이동은 `themepark_game_core.js`에서 처리
 - Pixi 컴포넌트는 타일/시설/방문객 렌더와 카메라 입력만 담당
-- 향후 RCT1 스타일 스프라이트 시트(Atlas) 교체 시 `FacilitySprite`, `GuestSprite`부터 교체
+- `themepark_pixi_renderer.jsx`는 아래 경로의 스프라이트를 바로 읽습니다.
+  - `/assets/sprites/tiles/*.png`
+  - `/assets/sprites/facilities/*.png`
+  - `/assets/sprites/guests/*.png`
+- 파일이 없으면 일부 요소는 fallback 그래픽으로 렌더됩니다.
