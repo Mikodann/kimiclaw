@@ -90,6 +90,8 @@ export default function IsometricThemeParkMobile() {
   const gestureRef = useRef({ mode: null, startX: 0, startY: 0, startCamX: 0, startCamY: 0, startDist: 0, startZoom: 1 });
   const visitorIdRef = useRef(1);
   const audioCtxRef = useRef(null);
+  const gameStateRef = useRef(null);
+  const rewardedMissionRef = useRef(new Set());
 
   const playSfx = (type) => {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -129,6 +131,7 @@ export default function IsometricThemeParkMobile() {
           const b = BUILDINGS[t.facilityId];
           if (b) list.push({ ...b, x, y, key: keyOf(x, y), meta: facilityMeta[keyOf(x, y)] || { level: 1, users: 0, revenue: 0, broken: false } });
         }
+      }
       }
     }
     return list;
@@ -173,8 +176,10 @@ export default function IsometricThemeParkMobile() {
 
   useEffect(() => {
     if (!currentMission) return;
+    if (rewardedMissionRef.current.has(currentMission.id)) return;
     const done = currentMission.done({ maxVisitors, money, rating });
     if (!done) return;
+    rewardedMissionRef.current.add(currentMission.id);
     setMoney((m) => m + (currentMission.rewardMoney || 0));
     if (currentMission.rewardUnlock) setMissionUnlocks((prev) => [...new Set([...prev, currentMission.rewardUnlock])]);
     setToast(`미션 완료! +₩${(currentMission.rewardMoney || 0).toLocaleString()}`);
@@ -193,10 +198,17 @@ export default function IsometricThemeParkMobile() {
   }, [filteredBuildOptions, selectedBuild]);
 
   useEffect(() => {
+    gameStateRef.current = {
+      tiles, facilityMeta, visitors, parkAttractiveness, activeEvent, stars, entryFee,
+      researching, builtFacilities, pathSet, maxVisitors, avgSatisfaction
+    };
+  }, [tiles, facilityMeta, visitors, parkAttractiveness, activeEvent, stars, entryFee, researching, builtFacilities, pathSet, maxVisitors, avgSatisfaction]);
+
+  useEffect(() => {
     if (!running) return;
-    const interval = setInterval(() => tickOneMinute(), 1000 / speed);
+    const interval = setInterval(() => tickOneMinute(gameStateRef.current), 1000 / speed);
     return () => clearInterval(interval);
-  }, [running, speed, tiles, facilityMeta, visitors, parkAttractiveness, activeEvent, stars, entryFee]);
+  }, [running, speed]);
 
   useEffect(() => {
     if (!toast) return;
@@ -239,15 +251,27 @@ export default function IsometricThemeParkMobile() {
     }
   };
 
-  const tickOneMinute = () => {
+  const tickOneMinute = (snapshot) => {
+    const gs = snapshot || gameStateRef.current || {};
+    const liveResearching = gs.researching;
+    const liveActiveEvent = gs.activeEvent || activeEvent;
+    const liveBuiltFacilities = gs.builtFacilities || builtFacilities;
+    const liveFacilityMeta = gs.facilityMeta || facilityMeta;
+    const liveParkAttractiveness = gs.parkAttractiveness ?? parkAttractiveness;
+    const liveEntryFee = gs.entryFee ?? entryFee;
+    const livePathSet = gs.pathSet || pathSet;
+    const liveTiles = gs.tiles || tiles;
+    const liveMaxVisitors = gs.maxVisitors ?? maxVisitors;
+    const liveVisitors = gs.visitors || visitors;
+    const liveAvgSatisfaction = gs.avgSatisfaction ?? avgSatisfaction;
     setGameMinutes((m) => (m + 1) % (24 * 60));
 
-    if (researching) {
+    if (liveResearching) {
       setResearchLeft((left) => {
         const next = left - 1;
         if (next <= 0) {
-          setUnlockedRides((prev) => [...new Set([...prev, researching])]);
-          setToast(`연구 완료: ${BUILDINGS[researching].name} 해금!`);
+          setUnlockedRides((prev) => [...new Set([...prev, liveResearching])]);
+          setToast(`연구 완료: ${BUILDINGS[liveResearching].name} 해금!`);
           setResearching(null);
           return 0;
         }
@@ -255,40 +279,44 @@ export default function IsometricThemeParkMobile() {
       });
     }
 
-    if (activeEvent.minutesLeft > 0) {
+    if (liveActiveEvent.minutesLeft > 0) {
       setActiveEvent((ev) => ({ ...ev, minutesLeft: ev.minutesLeft - 1 }));
-      if (activeEvent.minutesLeft === 1) setEventBanner("이벤트 종료");
+      if (liveActiveEvent.minutesLeft === 1) setEventBanner("이벤트 종료");
     } else if (Math.random() < 0.12) {
       triggerRandomEvent();
     }
 
-    if (Math.random() < 0.08 && builtFacilities.length) {
-      const target = builtFacilities[Math.floor(Math.random() * builtFacilities.length)];
+    if (liveBuiltFacilities.length) {
+      for (const target of liveBuiltFacilities) {
+        const lvl = target.meta?.level || 1;
+        const breakChance = 0.015 / Math.max(1, lvl);
+        if (!(Math.random() < breakChance)) continue;
       const fKey = target.key;
-      if (!facilityMeta[fKey]?.broken) {
+      if (!liveFacilityMeta[fKey]?.broken) {
         setFacilityMeta((prev) => ({ ...prev, [fKey]: { ...(prev[fKey] || { level: 1, users: 0, revenue: 0 }), broken: true } }));
         setEventBanner(`${target.emoji} ${target.name} 고장! 수리가 필요합니다.`);
         playSfx("error");
       }
+      }
     }
 
-    const maintenance = builtFacilities.reduce((sum, f) => {
+    const maintenance = liveBuiltFacilities.reduce((sum, f) => {
       const lvl = f.meta.level || 1;
       return sum + Math.round((f.maintenance || 0) * (1 + (lvl - 1) * 0.2));
     }, 0);
 
-    const passiveShopIncome = builtFacilities.reduce((sum, f) => {
+    const passiveShopIncome = liveBuiltFacilities.reduce((sum, f) => {
       const lvl = f.meta.level || 1;
       if (f.meta.broken) return sum;
       return sum + Math.round((f.shopIncome || 0) * (1 + (lvl - 1) * 0.25));
     }, 0);
 
-    const spawnChance = clamp((0.06 + parkAttractiveness / 280) * activeEvent.visitorMult * (1 - entryFee / 2000), 0.03, 0.45);
+    const spawnChance = clamp((0.06 + liveParkAttractiveness / 280) * liveActiveEvent.visitorMult * (1 - liveEntryFee / 2000), 0.03, 0.45);
 
     setVisitors((prev) => {
       let next = [...prev];
-      if (Math.random() < spawnChance && pathSet.size > 0 && next.length < 260) {
-        const [ex, ey] = [...pathSet][Math.floor(Math.random() * pathSet.size)].split(",").map(Number);
+      if (Math.random() < spawnChance && livePathSet.size > 0 && next.length < 260) {
+        const [ex, ey] = [...livePathSet][Math.floor(Math.random() * livePathSet.size)].split(",").map(Number);
         next.push({ id: visitorIdRef.current++, x: ex, y: ey, satisfaction: clamp(55 + Math.random() * 20, 0, 100), mood: "🙂" });
       }
 
@@ -298,22 +326,38 @@ export default function IsometricThemeParkMobile() {
       next = next
         .map((v) => {
           const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-          const candidates = dirs.map(([dx, dy]) => ({ x: v.x + dx, y: v.y + dy })).filter((p) => p.x >= 0 && p.x < MAP_SIZE && p.y >= 0 && p.y < MAP_SIZE && pathSet.has(keyOf(p.x, p.y)));
+          const candidates = dirs.map(([dx, dy]) => ({ x: v.x + dx, y: v.y + dy })).filter((p) => p.x >= 0 && p.x < MAP_SIZE && p.y >= 0 && p.y < MAP_SIZE && livePathSet.has(keyOf(p.x, p.y)));
           let nx = v.x; let ny = v.y;
           if (candidates.length) {
-            const pick = candidates[Math.floor(Math.random() * candidates.length)];
+            const weighted = candidates.map((p) => {
+              let w = 1;
+              for (const [adx, ady] of dirs) {
+                const ax = p.x + adx, ay = p.y + ady;
+                if (!isInside(ax, ay)) continue;
+                const t = liveTiles[ax][ay];
+                if (t.type === "facility" && t.facilityId) {
+                  const m = liveFacilityMeta[keyOf(ax, ay)] || { broken: false };
+                  if (!m.broken) w += 2;
+                }
+              }
+              return { ...p, w };
+            });
+            const totalW = weighted.reduce((a, c) => a + c.w, 0);
+            let r = Math.random() * totalW;
+            let pick = weighted[0];
+            for (const c of weighted) { r -= c.w; if (r <= 0) { pick = c; break; } }
             nx = pick.x; ny = pick.y;
           }
 
-          let satDelta = -0.4 + activeEvent.satDelta - entryFee / 1200;
+          let satDelta = -0.4 + liveActiveEvent.satDelta - liveEntryFee / 1200;
           for (const [dx, dy] of dirs) {
             const tx = nx + dx; const ty = ny + dy;
             if (!isInside(tx, ty)) continue;
-            const t = tiles[tx][ty];
+            const t = liveTiles[tx][ty];
             if (t.type !== "facility" || !t.facilityId) continue;
             const b = BUILDINGS[t.facilityId];
             const fk = keyOf(tx, ty);
-            const meta = facilityMeta[fk] || { level: 1, broken: false };
+            const meta = liveFacilityMeta[fk] || { level: 1, broken: false };
             if (meta.broken) continue;
             const lvl = meta.level || 1;
 
@@ -334,7 +378,7 @@ export default function IsometricThemeParkMobile() {
         })
         .filter((v) => v.satisfaction > 8 || Math.random() > 0.15);
 
-      if (next.length > maxVisitors) setMaxVisitors(next.length);
+      if (next.length > liveMaxVisitors) setMaxVisitors(next.length);
 
       if (Object.keys(usageCount).length || Object.keys(revenueDeltaByFacility).length) {
         setFacilityMeta((prev) => {
@@ -354,13 +398,13 @@ export default function IsometricThemeParkMobile() {
       return next;
     });
 
-    const entranceIncome = Math.round(visitors.length * entryFee * 0.2);
-    const activityIncome = Math.round(visitors.length * 1.3 + parkAttractiveness * 0.2 * activeEvent.visitorMult);
+    const entranceIncome = Math.round(liveVisitors.length * liveEntryFee * 0.2);
+    const activityIncome = Math.round(liveVisitors.length * 1.3 + liveParkAttractiveness * 0.2 * liveActiveEvent.visitorMult);
     const income = passiveShopIncome + activityIncome + entranceIncome;
     const expense = maintenance;
     setMoney((m) => m + income - expense);
     if (income > expense + 20) playSfx("income");
-    pushHistory(income, expense, avgSatisfaction);
+    pushHistory(income, expense, liveAvgSatisfaction);
   };
 
   const placeBuilding = (x, y) => {
@@ -474,6 +518,7 @@ export default function IsometricThemeParkMobile() {
       const moved = Math.hypot(p.clientX - (gestureRef.current.startX || p.clientX), p.clientY - (gestureRef.current.startY || p.clientY)) > 8;
       if (!moved && gestureRef.current.mode !== "pinch") {
         if (!tryOpenFacilityPopup(tile.x, tile.y)) placeBuilding(tile.x, tile.y);
+      }
       }
     }
     gestureRef.current.mode = null;
