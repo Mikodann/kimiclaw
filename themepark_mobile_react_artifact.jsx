@@ -485,20 +485,29 @@ export default function IsometricThemeParkMobile() {
   const popularity = useMemo(() => [...builtFacilities].sort((a, b) => (b.meta.users || 0) - (a.meta.users || 0)).slice(0, 5).map((f) => ({ name: `${f.emoji} ${f.name}`, users: f.meta.users || 0 })), [builtFacilities]);
 
   return (
-    <div className="h-screen w-full bg-gradient-to-b from-amber-50 to-lime-100 text-slate-800 flex flex-col overflow-hidden select-none">
+    <div className="h-screen w-full bg-[#7bb26a] text-slate-900 flex flex-col overflow-hidden select-none font-mono">
+      <style>{`
+        .pixel-panel { border: 2px solid #2f3e2c; box-shadow: 0 0 0 2px #a7c493 inset; border-radius: 0; }
+        .pixel-btn { border: 2px solid #2f3e2c; border-radius: 0; box-shadow: 2px 2px 0 #2f3e2c; }
+        .pixel-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2f3e2c; }
+        .pixel-map { image-rendering: pixelated; background: #8ecb76; }
+        .tile-grass { background: repeating-linear-gradient(0deg,#79b85f 0 4px,#82c268 4px 8px); }
+        .tile-path { background: repeating-linear-gradient(45deg,#d6bf8c 0 4px,#ccb57f 4px 8px); }
+        .tile-lot { background: repeating-linear-gradient(45deg,#9ccf85 0 4px,#93c87c 4px 8px); }
+      `}</style>
       <header className="px-3 pt-3 pb-2 z-20">
-        <div className="rounded-2xl bg-white/90 backdrop-blur shadow-md p-2.5">
+        <div className="pixel-panel bg-[#d7e9c8] p-2.5">
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
-            <div className="rounded-xl bg-emerald-50 p-2 min-h-[44px]"><div className="text-[11px] text-emerald-700">자금</div><div className="font-bold text-emerald-800">₩ {money.toLocaleString()}</div></div>
-            <div className="rounded-xl bg-sky-50 p-2 min-h-[44px]"><div className="text-[11px] text-sky-700">방문객</div><div className="font-bold text-sky-800">{visitors.length}명</div></div>
-            <div className="rounded-xl bg-amber-50 p-2 min-h-[44px]"><div className="text-[11px] text-amber-700">평점/등급</div><div className="font-bold text-amber-800">{rating} · {'⭐'.repeat(stars)}</div></div>
+            <div className="pixel-panel bg-[#d1efc0] p-2 min-h-[44px]"><div className="text-[11px] text-emerald-700">자금</div><div className="font-bold text-emerald-800">₩ {money.toLocaleString()}</div></div>
+            <div className="pixel-panel bg-[#c8e4ef] p-2 min-h-[44px]"><div className="text-[11px] text-sky-700">방문객</div><div className="font-bold text-sky-800">{visitors.length}명</div></div>
+            <div className="pixel-panel bg-[#f0e3b8] p-2 min-h-[44px]"><div className="text-[11px] text-amber-700">평점/등급</div><div className="font-bold text-amber-800">{rating} · {'⭐'.repeat(stars)}</div></div>
           </div>
           <div className="flex items-center justify-between mt-2">
             <div className="text-xs font-medium text-slate-600">🕒 {timeLabel} · {activeEvent.name}</div>
             <div className="flex gap-2">
-              <button className={`min-w-[44px] min-h-[44px] px-3 rounded-xl text-sm font-semibold ${running ? "bg-slate-100" : "bg-slate-800 text-white"}`} onClick={() => setRunning((v) => !v)}>{running ? "⏸" : "▶"}</button>
-              <button className={`min-w-[44px] min-h-[44px] px-3 rounded-xl text-sm font-semibold ${speed === 1 ? "bg-violet-100 text-violet-800" : "bg-violet-600 text-white"}`} onClick={() => setSpeed((s) => (s === 1 ? 2 : 1))}>{speed}x</button>
-              <button className="min-w-[44px] min-h-[44px] px-3 rounded-xl text-sm font-semibold bg-slate-200" onClick={() => setPanel((p) => (p === "park" ? "stats" : "park"))}>{panel === "park" ? "📊" : "🏞️"}</button>
+              <button className={`min-w-[44px] min-h-[44px] px-3 pixel-btn text-sm font-semibold ${running ? "bg-slate-100" : "bg-slate-800 text-white"}`} onClick={() => setRunning((v) => !v)}>{running ? "⏸" : "▶"}</button>
+              <button className={`min-w-[44px] min-h-[44px] px-3 pixel-btn text-sm font-semibold ${speed === 1 ? "bg-violet-100 text-violet-800" : "bg-violet-600 text-white"}`} onClick={() => setSpeed((s) => (s === 1 ? 2 : 1))}>{speed}x</button>
+              <button className="min-w-[44px] min-h-[44px] px-3 pixel-btn text-sm font-semibold bg-slate-200" onClick={() => setPanel((p) => (p === "park" ? "stats" : "park"))}>{panel === "park" ? "📊" : "🏞️"}</button>
             </div>
           </div>
           <div className="mt-2 flex items-center gap-2 text-xs">
@@ -513,21 +522,21 @@ export default function IsometricThemeParkMobile() {
       </header>
 
       <div className="px-3 pb-1">
-        <div className="rounded-xl bg-white/90 px-3 py-2 text-sm shadow">
+        <div className="pixel-panel bg-[#f3f0d8] px-3 py-2 text-sm">
           🎯 현재 미션: {currentMission ? currentMission.text : "모든 미션 완료"}
         </div>
       </div>
 
       {panel === "park" ? (
         <main className="flex-1 px-2 pb-2 relative">
-          <div ref={viewportRef} className="h-full w-full rounded-2xl bg-lime-200/80 shadow-inner border border-white/70 overflow-hidden touch-none relative" onMouseDown={handlePointerDown} onMouseMove={handlePointerMove} onMouseUp={handlePointerUp} onTouchStart={handlePointerDown} onTouchMove={handlePointerMove} onTouchEnd={handlePointerUp}>
+          <div ref={viewportRef} className="h-full w-full pixel-map pixel-panel overflow-hidden touch-none relative" onMouseDown={handlePointerDown} onMouseMove={handlePointerMove} onMouseUp={handlePointerUp} onTouchStart={handlePointerDown} onTouchMove={handlePointerMove} onTouchEnd={handlePointerUp}>
             <div className="absolute left-0 top-0" style={{ transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.zoom})`, transformOrigin: "0 0", willChange: "transform" }}>
               {Array.from({ length: MAP_SIZE }).map((_, x) => Array.from({ length: MAP_SIZE }).map((__, y) => {
                 const tile = tiles[x][y]; const pos = isoToScreen(x, y);
-                const bg = tile.type === "grass" ? "bg-lime-400" : tile.type === "path" ? "bg-amber-200" : "bg-lime-300";
+                const bg = tile.type === "grass" ? "tile-grass" : tile.type === "path" ? "tile-path" : "tile-lot";
                 return <div key={`${x}-${y}`} className={`absolute ${bg} border border-white/45`} style={{ width: TILE_W, height: TILE_H, left: pos.x - TILE_W / 2, top: pos.y - TILE_H / 2, transform: "skewY(-26.565deg) scaleY(0.5)", borderRadius: 2 }} />;
               }))}
-              {builtFacilities.map((f) => { const pos = isoToScreen(f.x, f.y); return <div key={`f-${f.key}`} className="absolute text-2xl" style={{ left: pos.x - 12, top: pos.y - 32 }}>{f.emoji}{f.meta.broken ? "❌" : ""}</div>; })}
+              {builtFacilities.map((f) => { const pos = isoToScreen(f.x, f.y); return <div key={`f-${f.key}`} className="absolute text-xl bg-[#f5f0d8] border-2 border-[#2f3e2c] w-7 h-7 flex items-center justify-center" style={{ left: pos.x - 12, top: pos.y - 32 }}>{f.emoji}{f.meta.broken ? "❌" : ""}</div>; })}
               {visitors.map((v) => { const pos = isoToScreen(v.x, v.y); return <div key={v.id} className="absolute transition-all duration-500 ease-linear" style={{ left: pos.x - 6, top: pos.y - 12 }}><div className="w-3 h-3 rounded-full bg-sky-600 border border-white shadow" /></div>; })}
               {hoverTile && isInside(hoverTile.x, hoverTile.y) && (() => { const pos = isoToScreen(hoverTile.x, hoverTile.y); return <div className={`absolute border-2 ${placeValid ? "border-emerald-500/80" : "border-red-500/90"}`} style={{ width: TILE_W, height: TILE_H, left: pos.x - TILE_W / 2, top: pos.y - TILE_H / 2, transform: "skewY(-26.565deg) scaleY(0.5)", borderRadius: 2 }} />; })()}
             </div>
@@ -543,21 +552,21 @@ export default function IsometricThemeParkMobile() {
       )}
 
       <footer className="px-2 pb-2 z-20">
-        <div className="rounded-2xl bg-white/95 shadow-lg p-2 mb-2">
+        <div className="pixel-panel bg-[#dfeccd] p-2 mb-2">
           <div className="text-xs font-semibold mb-2">연구 시스템</div>
           <div className="flex gap-2 overflow-x-auto">
-            {["ferris", "bumper", "waterslide"].map((id) => { const b = BUILDINGS[id]; const unlocked = unlockedRides.includes(id); return <button key={id} onClick={() => startResearch(id)} className="min-w-[120px] min-h-[44px] rounded-xl px-2 py-1 text-left border border-slate-200 bg-slate-50"><div className="text-sm">{b.emoji} {b.name}</div><div className="text-[11px] text-slate-500">{unlocked ? "해금 완료" : researching === id ? `연구중 ${researchLeft}분` : "탭해서 연구"}</div></button>; })}
+            {["ferris", "bumper", "waterslide"].map((id) => { const b = BUILDINGS[id]; const unlocked = unlockedRides.includes(id); return <button key={id} onClick={() => startResearch(id)} className="min-w-[120px] min-h-[44px] pixel-btn px-2 py-1 text-left bg-[#eff5df]"><div className="text-sm">{b.emoji} {b.name}</div><div className="text-[11px] text-slate-500">{unlocked ? "해금 완료" : researching === id ? `연구중 ${researchLeft}분` : "탭해서 연구"}</div></button>; })}
           </div>
         </div>
 
-        <div className="rounded-2xl bg-white/95 shadow-lg p-2">
+        <div className="pixel-panel bg-[#dfeccd] p-2">
           <div className="grid grid-cols-4 gap-2 mb-2">{CATEGORIES.map((cat) => <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`min-h-[44px] rounded-xl text-xs font-semibold flex items-center justify-center gap-1 ${activeCategory === cat.id ? "bg-slate-800 text-white" : "bg-slate-100 text-slate-700"}`}><span>{cat.icon}</span><span>{cat.label}</span></button>)}</div>
           <div className="flex gap-2 overflow-x-auto pb-1">{filteredBuildOptions.map((b) => <button key={b.id} onClick={() => setSelectedBuild(b.id)} className={`min-w-[124px] min-h-[64px] rounded-xl px-2 py-1 text-left border ${selectedBuild === b.id ? "border-violet-500 bg-violet-50" : "border-slate-200 bg-white"}`}><div className="flex items-center gap-1.5"><span className="text-xl">{b.emoji}</span><span className="font-semibold text-sm">{b.name}</span></div><div className="text-[11px] text-slate-600">건설 ₩{b.cost.toLocaleString()}</div></button>)}</div>
         </div>
       </footer>
 
-      {selectedFacility && <div className="absolute inset-0 bg-black/35 flex items-center justify-center z-30 p-4"><div className="w-full max-w-sm bg-white rounded-2xl p-4 shadow-xl"><div className="flex justify-between items-center mb-2"><div className="font-bold">{selectedFacility.building.emoji} {selectedFacility.building.name}</div><button className="min-w-[44px] min-h-[44px]" onClick={() => setSelectedFacilityKey(null)}>✕</button></div><div className="text-sm space-y-1 mb-3"><div>상태: {selectedFacility.meta.broken ? "고장" : "정상"}</div><div>누적 이용객: {selectedFacility.meta.users || 0}명</div><div>누적 수익: ₩{(selectedFacility.meta.revenue || 0).toLocaleString()}</div><div>레벨: Lv.{selectedFacility.meta.level || 1}</div></div><div className="grid grid-cols-3 gap-2"><button className="min-h-[44px] rounded-xl bg-indigo-100" onClick={upgradeFacility}>업그레이드</button><button className="min-h-[44px] rounded-xl bg-amber-100" onClick={repairFacility}>수리</button><button className="min-h-[44px] rounded-xl bg-rose-100" onClick={demolishFacility}>철거</button></div></div></div>}
-      {toast && <div className="absolute top-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-3 py-2 rounded-xl shadow-lg z-40">{toast}</div>}
+      {selectedFacility && <div className="absolute inset-0 bg-black/35 flex items-center justify-center z-30 p-4"><div className="w-full max-w-sm bg-[#efe7c8] pixel-panel p-4"><div className="flex justify-between items-center mb-2"><div className="font-bold">{selectedFacility.building.emoji} {selectedFacility.building.name}</div><button className="min-w-[44px] min-h-[44px]" onClick={() => setSelectedFacilityKey(null)}>✕</button></div><div className="text-sm space-y-1 mb-3"><div>상태: {selectedFacility.meta.broken ? "고장" : "정상"}</div><div>누적 이용객: {selectedFacility.meta.users || 0}명</div><div>누적 수익: ₩{(selectedFacility.meta.revenue || 0).toLocaleString()}</div><div>레벨: Lv.{selectedFacility.meta.level || 1}</div></div><div className="grid grid-cols-3 gap-2"><button className="min-h-[44px] pixel-btn bg-[#c8d7ff]" onClick={upgradeFacility}>업그레이드</button><button className="min-h-[44px] pixel-btn bg-[#f6e2b0]" onClick={repairFacility}>수리</button><button className="min-h-[44px] pixel-btn bg-[#f7c6c6]" onClick={demolishFacility}>철거</button></div></div></div>}
+      {toast && <div className="absolute top-24 left-1/2 -translate-x-1/2 pixel-panel bg-[#2f3e2c] text-white text-sm px-3 py-2 z-40">{toast}</div>}
     </div>
   );
 }
